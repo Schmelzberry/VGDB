@@ -70,22 +70,22 @@ class VideogameControl extends React.Component {
 
     if (this.state.editing ) {      
       currentlyVisibleState = <EditVideogameForm videogame = {this.state.selectedVideogame} onEditVideogame = {this.handleEditingVideogameInList} />
-      buttonText = "Return to Videogame List";
+      buttonText = "Return to Game List";
     } 
     else if (this.state.selectedVideogame != null) {
       currentlyVisibleState = <VideogameDetail 
       videogame={this.state.selectedVideogame} 
       onClickingDelete={this.handleDeletingVideogame}
       onClickingEdit = {this.handleEditClick} />
-      buttonText = "Return to Videogame List";
+      buttonText = "Return to Game List";
     } 
     else if (this.state.formVisibleOnPage) {
       currentlyVisibleState = <NewVideogameForm onNewVideogameCreation={this.handleAddingNewVideogameToList}/>;
-      buttonText = "Return to Videogame List"; 
+      buttonText = "Return to Game List"; 
     } 
     else {
       currentlyVisibleState = <VideogameList onVideogameSelection={this.handleChangingSelectedVideogame} videogameList={this.state.mainVideogameList} />;
-      buttonText = "Add Videogame"; 
+      buttonText = "Start New Game"; 
     }
     return (
       <React.Fragment>
