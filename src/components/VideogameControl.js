@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import NewVideogameForm from './NewVideogameForm';
 import VideogameList from './VideogameList';
 import EditVideogameForm from './EditVideogameForm';
 import VideogameDetail from './VideogameDetail';
+import db from './../firebase.js';
+import { collection, addDoc, onSnapshot } from "firebase/firestore";
+
 
 function VideogameControl() {
 
@@ -10,6 +13,39 @@ function VideogameControl() {
   const [mainVideogameList, setMainVideogameList] = useState([]);
   const [selectedVideogame, setSelectedVideogame] = useState(null);
   const [editing, setEditing] = useState(false);
+  const [error, setError] = useState(null);
+
+  //*** */ USE EFFECT HOOKS ***//
+
+  useEffect(() => {
+    const unSubscribe = onSnapshot(
+      collection(db, "videogames"),
+
+      // collectionSnapshot represents response coming from Firestore DB
+      // can be named whatever makes most sense "collection snapshot" is gud tho
+      (collectionSnapshot) => {
+        const videogames = [];
+        collectionSnapshot.forEach((doc) => {
+            videogames.push({
+              ... doc.data(),
+              // name: doc.data().name,
+              // gamingSystem: doc.data().gamingSystem,
+              // notes: doc.data().notes,
+              // finishedGame: doc.data().finishedGame,
+              // rating: doc.data().rating,
+              id: doc.id
+            });
+        });
+        setMainVideogameList(videogames);
+      },
+      (error) => {
+        setError(error.message);
+      }
+    );
+
+    return () => unSubscribe();
+  }, []);
+
 
   const handleClick = () => {
     if (selectedVideogame != null) {
@@ -43,12 +79,10 @@ function VideogameControl() {
     setSelectedVideogame(null);
   }
 
-  const handleAddingNewVideogameToList = (newVideogame) => {
-
-    const newMainVideogameList = mainVideogameList.concat(newVideogame);
-
-    setMainVideogameList(newMainVideogameList);
-    setFormVisibleOnPage(false)
+  const handleAddingNewVideogameToList = async (newVideogameData) => {
+    const collectionRef = collection(db,"videogames");
+    await addDoc(collectionRef, newVideogameData);
+    setFormVisibleOnPage(false);
   }
 
   const handleChangingSelectedVideogame = (id) => {
@@ -62,7 +96,10 @@ function VideogameControl() {
   let currentlyVisibleState = null;
   let buttonText = null;
 
-  if (editing) {
+  if (error) {
+    currentlyVisibleState = <p>There was an error: {error}</p>
+  }
+  else if (editing) {
     currentlyVisibleState = 
     <EditVideogameForm
      videogame={selectedVideogame}
@@ -97,7 +134,7 @@ function VideogameControl() {
   return (
     <React.Fragment>
       {currentlyVisibleState}
-      <button onClick={handleClick}>{buttonText}</button>
+      {error ? null : <button onClick={handleClick}>{buttonText}</button>}
     </React.Fragment>
   );
 
