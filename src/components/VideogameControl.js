@@ -27,13 +27,8 @@ function VideogameControl() {
         const videogames = [];
         collectionSnapshot.forEach((doc) => {
             videogames.push({
-              ... doc.data(),
-              // name: doc.data().name,
-              // gamingSystem: doc.data().gamingSystem,
-              // notes: doc.data().notes,
-              // finishedGame: doc.data().finishedGame,
-              // rating: doc.data().rating,
-              id: doc.id
+            ...doc.data(),
+            id: doc.id
             });
         });
         setMainVideogameList(videogames);

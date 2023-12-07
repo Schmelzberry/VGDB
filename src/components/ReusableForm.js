@@ -26,6 +26,7 @@ function ReusableForm(props) {
 
   return (
     <React.Fragment>
+      <div className="form-wrapper">
       <form onSubmit={handleFormSubmit}>
         {/* Existing form inputs */}
         <input
@@ -90,6 +91,7 @@ function ReusableForm(props) {
 
         <button type="submit">{props.buttonText}</button>
       </form>
+      </div>
     </React.Fragment>
   );
 }

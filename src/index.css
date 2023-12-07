@@ -45,3 +45,12 @@ button {
 hr {
   border-color: #000000;
 }
+
+form {
+  max-width: 600px; /* Adjust the width as needed */
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #818180d3; /* Adjust the background color as needed */
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
