@@ -1,101 +1,141 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import NewVideogameForm from './NewVideogameForm';
 import VideogameList from './VideogameList';
 import EditVideogameForm from './EditVideogameForm';
 import VideogameDetail from './VideogameDetail';
+import db from './../firebase.js';
+import { collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "firebase/firestore";
 
-class VideogameControl extends React.Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      formVisibleOnPage: false,
-      mainVideogameList: [],
-      selectedVideogame: null,
-      editing: false
-    };
-  }
+function VideogameControl() {
 
-  handleClick = () => {
-    if (this.state.selectedVideogame != null) {
-      this.setState({
-        formVisibleOnPage: false,
-        selectedVideogame: null,
-        editing: false
-      });
-    } else {
-      this.setState(prevState => ({
-        formVisibleOnPage: !prevState.formVisibleOnPage,
-      }));
-    }
-  }
+  const [formVisibleOnPage, setFormVisibleOnPage] = useState(false);
+  const [mainVideogameList, setMainVideogameList] = useState([]);
+  const [selectedVideogame, setSelectedVideogame] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [error, setError] = useState(null);
 
-  handleDeletingVideogame = (id) => {
-    const newMainVideogameList = this.state.mainVideogameList.filter(videogame => videogame.id !== id);
-    this.setState({
-      mainVideogameList: newMainVideogameList,
-      selectedVideogame: null
-    });
-  }
+  //*** */ USE EFFECT HOOKS ***//
 
-  handleEditClick = () => {
-    this.setState({editing: true});
-  }
+  useEffect(() => {
+    const unSubscribe = onSnapshot(
+      collection(db, "videogames"),
 
-  handleEditingVideogameInList = (videogameToEdit) => {
-    const editedMainVideogameList = this.state.mainVideogameList
-      .filter(videogame => videogame.id !== this.state.selectedVideogame.id)
-      .concat(videogameToEdit);
-    this.setState({
-      mainVideogameList: editedMainVideogameList,
-      editing: false,
-      selectedVideogame: null
-    });
-  }
-
-  handleAddingNewVideogameToList = (newVideogame) => {
-    const newMainVideogameList = this.state.mainVideogameList.concat(newVideogame);
-    this.setState({mainVideogameList: newMainVideogameList});
-    this.setState({formVisibleOnPage: false});
-  }
-
-  handleChangingSelectedVideogame = (id) => {
-    const selectedVideogame = this.state.mainVideogameList.filter(videogame => videogame.id === id)[0];
-    this.setState({selectedVideogame: selectedVideogame});
-  }
-
-  render(){
-    let currentlyVisibleState = null;
-    let buttonText = null;
-
-    if (this.state.editing ) {      
-      currentlyVisibleState = <EditVideogameForm videogame = {this.state.selectedVideogame} onEditVideogame = {this.handleEditingVideogameInList} />
-      buttonText = "Return to Game List";
-    } 
-    else if (this.state.selectedVideogame != null) {
-      currentlyVisibleState = <VideogameDetail 
-      videogame={this.state.selectedVideogame} 
-      onClickingDelete={this.handleDeletingVideogame}
-      onClickingEdit = {this.handleEditClick} />
-      buttonText = "Return to Game List";
-    } 
-    else if (this.state.formVisibleOnPage) {
-      currentlyVisibleState = <NewVideogameForm onNewVideogameCreation={this.handleAddingNewVideogameToList}/>;
-      buttonText = "Return to Game List"; 
-    } 
-    else {
-      currentlyVisibleState = <VideogameList onVideogameSelection={this.handleChangingSelectedVideogame} videogameList={this.state.mainVideogameList} />;
-      buttonText = "Start New Game"; 
-    }
-    return (
-      <React.Fragment>
-        {currentlyVisibleState}
-        <button onClick={this.handleClick}>{buttonText}</button> 
-      </React.Fragment>
+      // collectionSnapshot represents response coming from Firestore DB
+      // can be named whatever makes most sense "collection snapshot" is gud tho
+      (collectionSnapshot) => {
+        const videogames = [];
+        collectionSnapshot.forEach((doc) => {
+            videogames.push({
+              ... doc.data(),
+              // name: doc.data().name,
+              // gamingSystem: doc.data().gamingSystem,
+              // notes: doc.data().notes,
+              // finishedGame: doc.data().finishedGame,
+              // rating: doc.data().rating,
+              id: doc.id
+            });
+        });
+        setMainVideogameList(videogames);
+      },
+      (error) => {
+        setError(error.message);
+      }
     );
+
+    return () => unSubscribe();
+  }, []);
+
+
+  const handleClick = () => {
+    if (selectedVideogame != null) {
+      setFormVisibleOnPage(false);
+      setSelectedVideogame(null);
+      setEditing(false);
+
+    } else {
+      setFormVisibleOnPage(!formVisibleOnPage);
+    }
   }
+
+  const handleDeletingVideogame = async (id) => {
+    await deleteDoc(doc(db, "videogames", id));
+    setSelectedVideogame(null);
+    
+  }
+
+  const handleEditClick = () => {
+    setEditing(true);
+  }
+
+  const handleEditingVideogameInList = async (videogameToEdit) => {
+
+    const videogameRef = doc(db, "videogames", videogameToEdit.id);
+    await updateDoc(videogameRef, videogameToEdit);
+    setEditing(false);
+    setSelectedVideogame(null);
+  }
+
+  const handleAddingNewVideogameToList = async (newVideogameData) => {
+    const collectionRef = collection(db,"videogames");
+    await addDoc(collectionRef, newVideogameData);
+    setFormVisibleOnPage(false);
+  }
+
+  const handleChangingSelectedVideogame = (id) => {
+    const selection= mainVideogameList.filter(videogame => videogame.id === id)[0];
+    setSelectedVideogame(selection);
+
+  }
+
+  // REMOVED RENDER METHOD FROM CLASS COMPONENT STATE MGMT
+
+  let currentlyVisibleState = null;
+  let buttonText = null;
+
+  if (error) {
+    currentlyVisibleState = <p>There was an error: {error}</p>
+  }
+  else if (editing) {
+    currentlyVisibleState = 
+    <EditVideogameForm
+     videogame={selectedVideogame}
+    onEditVideogame={handleEditingVideogameInList} 
+    />
+    buttonText = "Return to Game List";
+  }
+  else if (selectedVideogame != null) {
+    currentlyVisibleState = 
+    <VideogameDetail
+      videogame={selectedVideogame}
+      onClickingDelete={handleDeletingVideogame}
+      onClickingEdit={handleEditClick} 
+      />
+    buttonText = "Return to Game List";
+  }
+  else if (formVisibleOnPage) {
+    currentlyVisibleState = 
+    <NewVideogameForm
+    onNewVideogameCreation = {handleAddingNewVideogameToList} 
+    />
+    buttonText = "Return to Game List";
+  }
+  else {
+    currentlyVisibleState = 
+    <VideogameList
+      onVideogameSelection = {handleChangingSelectedVideogame}
+      videogameList={mainVideogameList} 
+      />
+    buttonText = "Start New Game";
+  }
+  return (
+    <React.Fragment>
+      {currentlyVisibleState}
+      {error ? null : <button onClick={handleClick}>{buttonText}</button>}
+    </React.Fragment>
+  );
 
 }
 
-export default VideogameControl;
 
+export default VideogameControl;
