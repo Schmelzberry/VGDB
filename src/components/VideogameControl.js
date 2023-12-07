@@ -1,101 +1,107 @@
-import React from 'react';
+import React, { useState } from 'react';
 import NewVideogameForm from './NewVideogameForm';
 import VideogameList from './VideogameList';
 import EditVideogameForm from './EditVideogameForm';
 import VideogameDetail from './VideogameDetail';
 
-class VideogameControl extends React.Component {
+function VideogameControl() {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      formVisibleOnPage: false,
-      mainVideogameList: [],
-      selectedVideogame: null,
-      editing: false
-    };
-  }
+  const [formVisibleOnPage, setFormVisibleOnPage] = useState(false);
+  const [mainVideogameList, setMainVideogameList] = useState([]);
+  const [selectedVideogame, setSelectedVideogame] = useState(null);
+  const [editing, setEditing] = useState(false);
 
-  handleClick = () => {
-    if (this.state.selectedVideogame != null) {
-      this.setState({
-        formVisibleOnPage: false,
-        selectedVideogame: null,
-        editing: false
-      });
+  const handleClick = () => {
+    if (selectedVideogame != null) {
+      setFormVisibleOnPage(false);
+      setSelectedVideogame(null);
+      setEditing(false);
+
     } else {
-      this.setState(prevState => ({
-        formVisibleOnPage: !prevState.formVisibleOnPage,
-      }));
+      setFormVisibleOnPage(!formVisibleOnPage);
     }
   }
 
-  handleDeletingVideogame = (id) => {
-    const newMainVideogameList = this.state.mainVideogameList.filter(videogame => videogame.id !== id);
-    this.setState({
-      mainVideogameList: newMainVideogameList,
-      selectedVideogame: null
-    });
+
+  const handleDeletingVideogame = (id) => {
+    const newMainVideogameList = mainVideogameList.filter(videogame => videogame.id !== id);
+    setMainVideogameList(newMainVideogameList);
+    setSelectedVideogame(null);
   }
 
-  handleEditClick = () => {
-    this.setState({editing: true});
+  const handleEditClick = () => {
+    setEditing(true);
   }
 
-  handleEditingVideogameInList = (videogameToEdit) => {
-    const editedMainVideogameList = this.state.mainVideogameList
-      .filter(videogame => videogame.id !== this.state.selectedVideogame.id)
+  const handleEditingVideogameInList = (videogameToEdit) => {
+
+    const editedMainVideogameList = mainVideogameList
+      .filter(videogame => videogame.id !== selectedVideogame.id)
       .concat(videogameToEdit);
-    this.setState({
-      mainVideogameList: editedMainVideogameList,
-      editing: false,
-      selectedVideogame: null
-    });
+    setMainVideogameList(editedMainVideogameList);
+    setEditing(false);
+    setSelectedVideogame(null);
   }
 
-  handleAddingNewVideogameToList = (newVideogame) => {
-    const newMainVideogameList = this.state.mainVideogameList.concat(newVideogame);
-    this.setState({mainVideogameList: newMainVideogameList});
-    this.setState({formVisibleOnPage: false});
+  const handleAddingNewVideogameToList = (newVideogame) => {
+
+    const newMainVideogameList = mainVideogameList.concat(newVideogame);
+
+    setMainVideogameList(newMainVideogameList);
+    setFormVisibleOnPage(false)
   }
 
-  handleChangingSelectedVideogame = (id) => {
-    const selectedVideogame = this.state.mainVideogameList.filter(videogame => videogame.id === id)[0];
-    this.setState({selectedVideogame: selectedVideogame});
+  const handleChangingSelectedVideogame = (id) => {
+    const selection= mainVideogameList.filter(videogame => videogame.id === id)[0];
+    setSelectedVideogame(selection);
+
   }
 
-  render(){
-    let currentlyVisibleState = null;
-    let buttonText = null;
+  // REMOVED RENDER METHOD FROM CLASS COMPONENT STATE MGMT
 
-    if (this.state.editing ) {      
-      currentlyVisibleState = <EditVideogameForm videogame = {this.state.selectedVideogame} onEditVideogame = {this.handleEditingVideogameInList} />
-      buttonText = "Return to Game List";
-    } 
-    else if (this.state.selectedVideogame != null) {
-      currentlyVisibleState = <VideogameDetail 
-      videogame={this.state.selectedVideogame} 
-      onClickingDelete={this.handleDeletingVideogame}
-      onClickingEdit = {this.handleEditClick} />
-      buttonText = "Return to Game List";
-    } 
-    else if (this.state.formVisibleOnPage) {
-      currentlyVisibleState = <NewVideogameForm onNewVideogameCreation={this.handleAddingNewVideogameToList}/>;
-      buttonText = "Return to Game List"; 
-    } 
-    else {
-      currentlyVisibleState = <VideogameList onVideogameSelection={this.handleChangingSelectedVideogame} videogameList={this.state.mainVideogameList} />;
-      buttonText = "Start New Game"; 
-    }
-    return (
-      <React.Fragment>
-        {currentlyVisibleState}
-        <button onClick={this.handleClick}>{buttonText}</button> 
-      </React.Fragment>
-    );
+  let currentlyVisibleState = null;
+  let buttonText = null;
+
+  if (editing) {
+    currentlyVisibleState = 
+    <EditVideogameForm
+     videogame={selectedVideogame}
+    onEditVideogame={handleEditingVideogameInList} 
+    />
+    buttonText = "Return to Game List";
   }
+  else if (selectedVideogame != null) {
+    currentlyVisibleState = 
+    <VideogameDetail
+      videogame={selectedVideogame}
+      onClickingDelete={handleDeletingVideogame}
+      onClickingEdit={handleEditClick} 
+      />
+    buttonText = "Return to Game List";
+  }
+  else if (formVisibleOnPage) {
+    currentlyVisibleState = 
+    <NewVideogameForm
+    onNewVideogameCreation = {handleAddingNewVideogameToList} 
+    />
+    buttonText = "Return to Game List";
+  }
+  else {
+    currentlyVisibleState = 
+    <VideogameList
+      onVideogameSelection = {handleChangingSelectedVideogame}
+      videogameList={mainVideogameList} 
+      />
+    buttonText = "Start New Game";
+  }
+  return (
+    <React.Fragment>
+      {currentlyVisibleState}
+      <button onClick={handleClick}>{buttonText}</button>
+    </React.Fragment>
+  );
 
 }
 
-export default VideogameControl;
 
+export default VideogameControl;
