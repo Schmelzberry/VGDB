@@ -4,7 +4,7 @@ import VideogameList from './VideogameList';
 import EditVideogameForm from './EditVideogameForm';
 import VideogameDetail from './VideogameDetail';
 import db from './../firebase.js';
-import { collection, addDoc, onSnapshot } from "firebase/firestore";
+import { collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "firebase/firestore";
 
 
 function VideogameControl() {
@@ -58,23 +58,20 @@ function VideogameControl() {
     }
   }
 
-
-  const handleDeletingVideogame = (id) => {
-    const newMainVideogameList = mainVideogameList.filter(videogame => videogame.id !== id);
-    setMainVideogameList(newMainVideogameList);
+  const handleDeletingVideogame = async (id) => {
+    await deleteDoc(doc(db, "videogames", id));
     setSelectedVideogame(null);
+    
   }
 
   const handleEditClick = () => {
     setEditing(true);
   }
 
-  const handleEditingVideogameInList = (videogameToEdit) => {
+  const handleEditingVideogameInList = async (videogameToEdit) => {
 
-    const editedMainVideogameList = mainVideogameList
-      .filter(videogame => videogame.id !== selectedVideogame.id)
-      .concat(videogameToEdit);
-    setMainVideogameList(editedMainVideogameList);
+    const videogameRef = doc(db, "videogames", videogameToEdit.id);
+    await updateDoc(videogameRef, videogameToEdit);
     setEditing(false);
     setSelectedVideogame(null);
   }
