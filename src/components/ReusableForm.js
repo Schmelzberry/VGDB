@@ -51,6 +51,18 @@ function ReusableForm(props) {
           onChange={handleInputChange}
         />
         <br />
+        <label>Beat Game?</label>
+        <input
+          type="checkbox"
+          name="finishedGame"
+          checked={formData.finishedGame || false}
+          onChange={(event) =>
+            handleInputChange({
+              target: { name: "finishedGame", value: event.target.checked }
+            })
+          }
+        />
+        <br />
 
         {/* Additional form elements passed as a prop */}
         {props.renderAdditionalFormInputs && props.renderAdditionalFormInputs()}

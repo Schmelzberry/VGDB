@@ -6,6 +6,7 @@ import ReusableForm from "./ReusableForm";
 function NewVideogameForm(props) {
   return (
     <React.Fragment>
+      <h2>Enter New Game Below</h2>
       <ReusableForm
         formSubmissionHandler={(data) =>
           props.onNewVideogameCreation({ ...data, id: v4() })

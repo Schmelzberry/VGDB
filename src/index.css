@@ -5,9 +5,37 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: rgb(80, 25, 25);
+  color: #000000;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+
+input[type="text"],
+textarea {
+  background-color: #818180d3;
+  color: #000;
+  border: 1px solid #ccc;
+}
+
+/* Style for placeholder text */
+input::placeholder,
+textarea::placeholder {
+  color: black;
+}
+
+/* Style for the submit button */
+button {
+  background-color: #9b3225ab;
+  color: #000000;
+  border: 1px solid rgb(80, 25, 25);
+}
+
+/* Style for horizontal rule */
+hr {
+  border-color: #000000;
 }

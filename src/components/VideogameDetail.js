@@ -6,11 +6,12 @@ function VideogameDetail(props){
 
   return (
     <React.Fragment>
-      <h1>Videogame Detail</h1>
-      <h3>{videogame.name}</h3>
-      <p><em>Gaming System:</em> {videogame.gamingSystem}</p>
-      <p><em>Notes on game:</em> {videogame.notes}</p>
-      <p><em>Rating:</em> {videogame.rating}</p>
+      <h2>{videogame.name}</h2>
+      <h5><em>Gaming System:</em> {videogame.gamingSystem}</h5>
+      <h5><em>Notes on game:</em> {videogame.notes}</h5>
+      <h5><em>Rating:</em> {videogame.rating}</h5>
+      <h5><em>Did ya beat it?</em>{" "}
+        {videogame.finishedGame ? "Yes" : "No"}</h5>
       <button onClick={onClickingEdit}>Alter Game (cheater)</button>
       <button onClick={()=> onClickingDelete(videogame.id)}>Delete Save File</button>
       <hr/>

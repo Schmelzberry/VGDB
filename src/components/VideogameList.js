@@ -6,13 +6,15 @@ function VideogameList(props){
 
   return (
     <React.Fragment>
-      <h3>Click the button to start adding your favorite games!</h3>
+      <h3>Click the button to start adding your favorite games to VGDB!</h3>
       {props.videogameList.map((videogame) =>
         <Videogame 
           whenVideogameClicked={props.onVideogameSelection}
           name={videogame.name}
           gamingSystem={videogame.gamingSystem}
           notes={videogame.notes}
+          finishedGame={videogame.finishedGame}
+          rating={videogame.rating}
           id={videogame.id}
           key={videogame.id}/>
       )}

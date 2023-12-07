@@ -9,6 +9,7 @@ function Videogame(props){
         <h2>{props.name}</h2>
         <p><em>{props.gamingSystem}</em></p>
         <p><em>{props.notes}</em></p>
+        <p><em>{props.finishedGame}</em></p>
         <p><strong>Rating: {props.rating}</strong></p>
         
         <hr/>
@@ -22,6 +23,7 @@ Videogame.propTypes = {
   gameSystem: PropTypes.string,
   notes: PropTypes.string,
   rating: PropTypes.number,
+  finishedGame: PropTypes.bool,
   id: PropTypes.string,
   whenVideogameClicked: PropTypes.func
 }
